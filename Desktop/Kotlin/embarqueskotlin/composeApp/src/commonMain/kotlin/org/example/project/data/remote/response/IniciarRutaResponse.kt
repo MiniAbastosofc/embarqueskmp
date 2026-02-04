@@ -5,11 +5,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class IniciarRutaResponse(
-    @SerialName("message") val message: String
-){}
+    @SerialName("message") val message: String = ""
+) {}
 
 @Serializable
 data class IniciarRutaPayload(
     val EmbarqueID: Int,
-    val UsuarioID: Int?
+    val UsuarioID: Int?,
+    val Peso: Double?,      // Agregado (coincide con @Peso en SP)
+    val ChecadorID: Int,    // Agregado
+    val EstibadorID: Int
 )

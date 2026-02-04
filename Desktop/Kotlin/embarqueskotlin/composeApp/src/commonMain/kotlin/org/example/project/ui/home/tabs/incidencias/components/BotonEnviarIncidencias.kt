@@ -20,7 +20,7 @@ import org.example.project.ui.home.tabs.incidencias.IncidenciasViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun BotonEnviarIncidencias() {
+fun BotonEnviarIncidencias(imagenUri: String?) {
     val incidenciasViewModel = koinViewModel<IncidenciasViewModel>()
     val state by incidenciasViewModel.state.collectAsState()
 
@@ -32,7 +32,10 @@ fun BotonEnviarIncidencias() {
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(color = if (isEnabled) Color(0xFF1173D4) else Color(0xFFCCCCCC))
-            .clickable(onClick = { incidenciasViewModel.enviarIncidencia() }, enabled = isEnabled)
+            .clickable(
+                onClick = { incidenciasViewModel.enviarIncidencia(imagenUri) },
+                enabled = isEnabled
+            )
             .padding(10.dp),
     ) {
         Text(

@@ -15,10 +15,16 @@ import org.example.project.domain.model.TipoIncidenciasModel
 interface Repository {
     suspend fun loginAuth(Usuario: String, PasswordHash: String): LoginModel
     suspend fun getRutasRepository(fecha: String): List<RutasModel>
-    suspend fun iniciarRutasRepository(EmbarqueID: Int, UsuarioID: Int?): String
+    suspend fun iniciarRutasRepository(
+        EmbarqueID: Int,
+        UsuarioID: Int?,
+        tonelaje: Double?,
+        checadorId: Int,
+        estibadorId: Int
+    ): String
+
     suspend fun getShipmentDetailsByDateRepository(date: String): List<RutaDetallesModel>
     suspend fun getShipmentDetailsByIdRepository(shipmentId: Int): DetalleEmbarqueCompleto
-
     suspend fun agregarFotoRepository(
         embarqueID: Int,
         comentario: String?,

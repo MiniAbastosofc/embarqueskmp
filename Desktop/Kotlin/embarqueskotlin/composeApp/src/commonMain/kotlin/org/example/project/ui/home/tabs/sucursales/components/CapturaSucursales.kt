@@ -91,7 +91,6 @@ fun CapturaSucursales(
                     tint = Color(0xFF64B5F6)
                 )
             }
-
             // Título centrado
             Text(
                 text = "Asignaciones",
@@ -422,8 +421,6 @@ fun CapturaSucursales(
             }
             //Termina el when
         }
-
-
     }
 
 }

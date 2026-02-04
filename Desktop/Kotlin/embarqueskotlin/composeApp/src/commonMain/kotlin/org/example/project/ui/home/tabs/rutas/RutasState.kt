@@ -1,5 +1,6 @@
 package org.example.project.ui.home.tabs.rutas
 
+import org.example.project.domain.model.PersonalBodegaModel
 import org.example.project.domain.model.RutasModel
 
 data class RutasState(
@@ -21,6 +22,8 @@ data class RutasState(
     val currentUsuarioID: Int? = null,
     val embarquesFiltrados: List<RutasModel> = emptyList(),
     val filtroEstado: EstadoRuta? = null,
+    val checadores: List<PersonalBodegaModel> = emptyList(),
+    val estibadores: List<PersonalBodegaModel> = emptyList(),
 )
 
 enum class EstadoRuta(val valor: Int) {

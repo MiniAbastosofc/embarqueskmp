@@ -8,12 +8,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.example.project.convertPathToBase64
 import org.example.project.data.UserDataManager
 import org.example.project.data.remote.request.CrearIncidenciaRequest
 import org.example.project.domain.Repository
+import org.example.project.domain.useCases.GetIncidenciasUseCase
+import org.example.project.utils.convertirUriABase64Platform
+import kotlin.io.encoding.Base64
 
 class IncidenciasViewModel(
-    private val repository: Repository
+    private val repository: Repository,
+    private val getIncidenciasUseCase: GetIncidenciasUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(IncidenciasState())
     val state: StateFlow<IncidenciasState> = _state
@@ -93,9 +98,17 @@ class IncidenciasViewModel(
         println("🔄 Imagen limpiada")
     }
 
-    fun enviarIncidencia() {
-        val currentState = _state.value
+    fun setEvidenciaUri(uri: String?) {
+        _state.update { it.copy(evidenciaUri = uri) }
+    }
 
+    fun setEmbarqueId(id: String) {
+        _state.update { it.copy(embarqueId = id) }
+    }
+
+    fun enviarIncidencia(pathImagen: String?) {
+        val currentState = _state.value
+        // 1. Validaciones
         if (currentState.incidenciaSeleccionada.isEmpty()) {
             _state.update { it.copy(error = "Selecciona un tipo de incidencia") }
             return
@@ -109,40 +122,60 @@ class IncidenciasViewModel(
             return
         }
 
-        val request = CrearIncidenciaRequest(
-            EmbarqueId = 1,
-            IdTipoIncidencia = state.value.idIncidencia,
-            Cantidad = 1,
-            Descripcion = state.value.descripcionIncidencia,
-            Evidencia = "asdasd",
-            Resolucion = state.value.accionTomadaTexto,
-            UsuarioRegistroId = user?.UsuarioId
-        )
-
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, error = null) }
+            _state.update { it.copy(isLoading = true) }
             try {
-                val result = repository.crearincidenciaApiService(request)
-                println("✅ Incidencia creada con ID: ${result.NuevaIncidenciaId}")
-                _state.update {
-                    it.copy(isLoading = false)
+                // CONVERSIÓN: Aquí conviertes el path en el String real de la imagen
+                val imagenBytes: ByteArray? = pathImagen?.let { path ->
+                    val base64String = convertPathToBase64(path)
+                    Base64.decode(base64String) // Convertir base64 a ByteArray
                 }
+
+                if (imagenBytes == null) {
+                    _state.update {
+                        it.copy(
+                            error = "No se pudo cargar la imagen",
+                            isLoading = false
+                        )
+                    }
+                    return@launch
+                }
+
+                val request = CrearIncidenciaRequest(
+                    EmbarqueId = currentState.embarqueId.toIntOrNull()
+                        ?: 0, // ¿De dónde obtienes este ID?
+                    IdTipoIncidencia = currentState.idIncidencia,
+                    Cantidad = 1,
+                    Descripcion = currentState.descripcionIncidencia,
+                    Evidencia = imagenBytes, // Ahora es ByteArray
+                    Resolucion = currentState.accionTomadaTexto,
+                    UsuarioRegistroId = user?.UsuarioId ?: 0 // Asegúrate de que no sea null
+                )
+
+                repository.crearincidenciaApiService(request)
+                _state.update { it.copy(isLoading = false, operacionExitosa = true) }
             } catch (e: Exception) {
-                println("❌ Error enviando incidencia: ${e.message}")
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        error = e.message ?: "Error al enviar incidencia"
-                    )
-                }
+                _state.update { it.copy(isLoading = false, error = e.message) }
             }
         }
+    }
+    fun cargarIncidenciasPorFecha(fecha: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, error = null) }
 
-        println("✅ Enviando incidencia...")
-        println("Tipo: ${currentState.incidenciaSeleccionada}")
-        println("IdTipo: ${currentState.idIncidencia}")
-        println("Descripción: ${currentState.descripcionIncidencia}")
-        println("Accion Tomada: ${currentState.accionTomadaTexto}")
-        println("Usuario: ${user?.UsuarioId}")
+            val result = getIncidenciasUseCase(fecha)
+
+            result.onSuccess { lista ->
+                _state.update { it.copy(
+                    listaIncidencias = lista,
+                    isLoading = false
+                ) }
+            }.onFailure { exception ->
+                _state.update { it.copy(
+                    error = exception.message ?: "Error desconocido",
+                    isLoading = false
+                ) }
+            }
+        }
     }
 }

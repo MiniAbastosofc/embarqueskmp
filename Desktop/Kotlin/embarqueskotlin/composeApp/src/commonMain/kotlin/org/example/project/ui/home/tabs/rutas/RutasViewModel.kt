@@ -16,6 +16,7 @@ import org.example.project.domain.CompletarEmbarqueUseCase
 import org.example.project.domain.GetRutasUseCase
 import org.example.project.domain.IniciarRutaUseCase
 import org.example.project.domain.model.RutasModel
+import org.example.project.domain.useCases.ObtenerPersonalBodegaUseCase
 import kotlin.time.Clock // <-- Usa este Clock
 import kotlin.time.ExperimentalTime
 
@@ -25,7 +26,8 @@ class RutasViewModel(
     private val getRutasUseCase: GetRutasUseCase,
     private val iniciarRutaUseCase: IniciarRutaUseCase,
     private val agregarFotoUseCase: AgregarFotoUseCase,
-    private val completarEmbarqueUseCase: CompletarEmbarqueUseCase
+    private val completarEmbarqueUseCase: CompletarEmbarqueUseCase,
+    private val obtenerChecadorEstibadorUseCase: ObtenerPersonalBodegaUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(RutasState())
     val state: StateFlow<RutasState> = _state
@@ -160,15 +162,18 @@ class RutasViewModel(
         }
     }
 
-    fun iniciarRuta(embarqueId: Int, usuarioId: Int?) {
+    fun iniciarRuta(
+        embarqueId: Int, usuarioId: Int?, tonelaje: Double, checadorId: Int, estibadorId: Int
+    ) {
         viewModelScope.launch {
             _iniciarRutaState.value = RutaUiState.Loading
             try {
-                val message = iniciarRutaUseCase(embarqueId, usuarioId)
+                // Pasa el tonelaje al UseCase
+                val message =
+                    iniciarRutaUseCase(embarqueId, usuarioId, tonelaje, checadorId, estibadorId)
                 _iniciarRutaState.value = RutaUiState.Success(message)
                 _state.update { it.copy(currentRutaStatus = 2) }
                 loadEmbarques(_state.value.fechaSeleccionada)
-
             } catch (e: Exception) {
                 _iniciarRutaState.value = RutaUiState.Error(e.message ?: "Error desconocido")
             }
@@ -308,6 +313,34 @@ class RutasViewModel(
             }
             .sortedByDescending { it.id } // O el criterio que prefieras
     }
+
+    init {
+        cargarChecadorEstibador()
+    }
+
+    fun cargarChecadorEstibador() {
+        _state.update { it.copy(isLoading = true) }
+
+        viewModelScope.launch {
+            try {
+                val resultado = obtenerChecadorEstibadorUseCase()
+                val checadoresActivos = resultado.checadores.filter { it.activo }
+                val estibadoresActivos = resultado.estibadores.filter { it.activo }
+                _state.update {
+                    it.copy(
+                        checadores = resultado.checadores.filter { c -> c.activo }, // Filtrado desde el origen
+                        estibadores = resultado.estibadores.filter { e -> e.activo },
+                        isLoading = false
+                    )
+                }
+
+            } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false) }
+                println("Error: ${e.message}")
+            }
+        }
+    }
+
 
 }
 

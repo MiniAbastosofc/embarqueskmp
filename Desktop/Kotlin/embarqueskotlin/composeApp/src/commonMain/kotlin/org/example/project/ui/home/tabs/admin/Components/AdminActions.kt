@@ -41,14 +41,14 @@ fun getAdminActions(navController: NavHostController): List<AdminAction> {
 //        ) {
 //            navController.navigate("configuracion")
 //        },
-//        AdminAction(
-//            title = "Backup",
-//            description = "Respaldar datos del sistema",
-//            icon = Icons.Default.Backup,
-//            color = Color(0xFFF44336)
-//        ) {
-//            navController.navigate("backup")
-//        },
+        AdminAction(
+            title = "Productividad",
+            description = "Modulo para reporte de productividad",
+            icon = Icons.Default.TrendingUp,
+            color = Color(0xFFF44336)
+        ) {
+            navController.navigate(Routes.Productividad.route)
+        },
         AdminAction(
             title = "Logs",
             description = "Registros del sistema",
@@ -56,6 +56,14 @@ fun getAdminActions(navController: NavHostController): List<AdminAction> {
             color = Color(0xFF607D8B)
         ) {
             navController.navigate(Routes.Historial.route)
-        }
+        },
+        AdminAction(
+            title = "Incidencias",
+            description = "Modulo para visualizacion de Incidencias",
+            icon = Icons.Default.Warning,
+            color = Color(0xFFF44336)
+        ) {
+            navController.navigate(Routes.ListaIncidencias.route)
+        },
     )
 }

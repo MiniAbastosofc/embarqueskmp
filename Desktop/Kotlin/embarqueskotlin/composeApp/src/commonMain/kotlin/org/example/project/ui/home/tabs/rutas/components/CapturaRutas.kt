@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -29,10 +30,15 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -51,18 +57,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.delay
 import org.example.project.CameraView
 import org.example.project.data.UserDataManager
+import org.example.project.domain.model.PersonalBodegaModel
 import org.example.project.ui.core.navigation.Routes
 import org.example.project.ui.home.tabs.rutas.RutaUiState
 import org.example.project.ui.home.tabs.rutas.RutasViewModel
 import org.example.project.ui.home.tabs.rutas.UploadFotoState
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CapturaRutas(
     navController: NavHostController,
@@ -85,6 +96,7 @@ fun CapturaRutas(
         if (statusId != null && rutasViewModel.state.value.currentRutaStatus == null) {
             rutasViewModel.setCurrentRutaStatus(statusId)
         }
+        println("Aqui vemos la ruta - ${rutaId}")
     }
 
     LaunchedEffect(state.uploadFotoState) {
@@ -139,7 +151,6 @@ fun CapturaRutas(
                 launchSingleTop = true
             }
         }
-
         // Mostrar error si existe
         state.finalizarEmbarqueError?.let { error ->
             println("❌ Error al finalizar: $error")
@@ -183,32 +194,207 @@ fun CapturaRutas(
         }
         when (estadoActual) {
             1 -> {   // SIN INICIAR
-                Button(
-                    onClick = {
-                        val embarqueID = rutaId?.toIntOrNull() ?: 0
-                        val usuarioID = usuarioId // Tu UserID real
-                        if (embarqueID > 0) {
-                            rutasViewModel.iniciarRuta(embarqueID, usuarioID)
-                        }
-                    },
+                // Campos de estado
+                var tonelaje by remember { mutableStateOf("") }
+                var checadorSeleccionado by remember { mutableStateOf<PersonalBodegaModel?>(null) }
+                var estibadorSeleccionado by remember { mutableStateOf<PersonalBodegaModel?>(null) }
+                var expandedChecador by remember { mutableStateOf(false) }
+                var expandedEstibador by remember { mutableStateOf(false) }
+                val checadores = state.checadores
+                val estibadores = state.estibadores
+
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF64B5F6)
-                    ),
-                    shape = RoundedCornerShape(12.dp)
+                        .padding(horizontal = 16.dp)
                 ) {
-                    Icon(
-                        Icons.Default.PlayArrow,
-                        contentDescription = "Iniciar",
-                        modifier = Modifier.size(20.dp)
+                    // Texto informativo
+                    Text(
+                        text = "Complete los datos para iniciar el embarque",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF333333)
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Iniciar Embarque", fontWeight = FontWeight.Bold)
+
+                    // Selector de Checador
+                    ExposedDropdownMenuBox(
+                        expanded = expandedChecador,
+                        onExpandedChange = { expandedChecador = !expandedChecador }
+                    ) {
+                        OutlinedTextField(
+                            value = if (checadorSeleccionado != null)
+                                "${checadorSeleccionado?.nombre} ${checadorSeleccionado?.apellido}"
+                            else "",
+                            onValueChange = {},
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor()
+                                .padding(bottom = 12.dp),
+                            readOnly = true,
+                            label = { Text("Checador *") },
+                            placeholder = { Text("Seleccione un checador") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedChecador)
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            //colors = TextFieldDefaults.outlinedTextFieldColors(
+                            //    focusedBorderColor = Color(0xFF64B5F6),
+                            //    unfocusedBorderColor = Color.Gray
+                            //)
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = expandedChecador,
+                            onDismissRequest = { expandedChecador = false }
+                        ) {
+                            checadores.forEach { checador ->
+                                DropdownMenuItem(
+                                    text = { Text("${checador.nombre} ${checador.apellido}") },
+                                    onClick = {
+                                        checadorSeleccionado = checador
+                                        expandedChecador = false
+
+                                        val idParaEnviar = checador.id
+                                        println("ID seleccionado: $idParaEnviar")
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    // Selector de Estibador
+                    ExposedDropdownMenuBox(
+                        expanded = expandedEstibador,
+                        onExpandedChange = { expandedEstibador = !expandedEstibador }
+                    ) {
+                        OutlinedTextField(
+                            value = if (estibadorSeleccionado != null)
+                                "${estibadorSeleccionado?.nombre} ${estibadorSeleccionado?.apellido}"
+                            else "",
+                            onValueChange = {},
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor()
+                                .padding(bottom = 12.dp),
+                            readOnly = true,
+                            label = { Text("Estibador *") },
+                            placeholder = { Text("Seleccione un estibador") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedEstibador)
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            //colors = TextFieldDefaults.outlinedTextFieldColors(
+                            //    focusedBorderColor = Color(0xFF64B5F6),
+                            //    unfocusedBorderColor = Color.Gray
+                            //)
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = expandedEstibador,
+                            onDismissRequest = { expandedEstibador = false }
+                        ) {
+                            estibadores.forEach { estibador ->
+                                DropdownMenuItem(
+                                    text = { Text("${estibador.nombre} ${estibador.apellido}") },
+                                    onClick = {
+                                        estibadorSeleccionado = estibador
+                                        expandedEstibador = false
+                                        val idEstibador = estibador.id
+                                        println("ID seleccionado: $idEstibador")
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    // Campo de texto para tonelaje
+                    OutlinedTextField(
+                        value = tonelaje,
+                        onValueChange = { nuevoValor ->
+                            // Filtrar solo números
+                            if (nuevoValor.matches(Regex("^\\d*(\\.\\d{0,2})?$"))) {
+                                tonelaje = nuevoValor
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        label = { Text("Tonelaje *") },
+                        placeholder = { Text("Ejemplo: 12.5 o 0.05") },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        //colors = TextFieldDefaults.outlinedTextFieldColors(
+                        //    focusedBorderColor = Color(0xFF64B5F6),
+                        //    unfocusedBorderColor = Color.Gray
+                        //)
+                    )
+
+                    Button(
+                        onClick = {
+                            val embarqueID = rutaId?.toIntOrNull() ?: 0
+                            val usuarioID = usuarioId
+                            val tonelajeValor = tonelaje.toDoubleOrNull() ?: 0.0
+                            val checadorID = checadorSeleccionado?.id ?: 0
+                            val estibadorID = estibadorSeleccionado?.id ?: 0
+
+                            if (embarqueID > 0) {
+                                // Aquí pasarías también los IDs del checador y estibador
+                                rutasViewModel.iniciarRuta(
+                                    embarqueID, usuarioID, tonelajeValor, checadorId = checadorID,
+                                    estibadorId = estibadorID
+                                )
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF64B5F6),
+                            disabledContainerColor = Color(0xFFBDBDBD)
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = tonelaje.isNotEmpty() &&
+                                checadorSeleccionado != null &&
+                                estibadorSeleccionado != null
+                    ) {
+                        Icon(
+                            Icons.Default.PlayArrow,
+                            contentDescription = "Iniciar",
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            "Iniciar Embarque",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+
+                    // Mensaje de validación
+                    if (tonelaje.isEmpty() || checadorSeleccionado == null || estibadorSeleccionado == null) {
+                        val mensajes = mutableListOf<String>()
+                        if (tonelaje.isEmpty()) mensajes.add("tonelaje")
+                        if (checadorSeleccionado == null) mensajes.add("checador")
+                        if (estibadorSeleccionado == null) mensajes.add("estibador")
+
+                        Text(
+                            text = "Debe completar: ${mensajes.joinToString(", ")}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xFFE53935),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                        )
+                    }
                 }
 
-                // Detener aquí: NO dibujar cámara, comentarios ni botones
                 return
             }
 
@@ -457,13 +643,27 @@ fun CapturaRutas(
                         TextButton(onClick = {
                             val currentUri = state.imagenUri
                             // 2. Construye la ruta con la URI
-                            val destinationRoute = Routes.Incidencias.withImage(currentUri)
+                            val destinationRoute = Routes.Incidencias.withParams(
+                                embarqueId = rutaId ?: "",
+                                imagenUri = currentUri
+                            )
                             // 3. Navega a la nueva ruta
                             navController.navigate(destinationRoute)
                         }) {
                             Text("Agregar Incidencia")
                         }
-                        TextButton(onClick = { println("Funcion boton pausar embarque") }) {
+                        TextButton(onClick = {
+                            println("Funcion boton pausar embarque - ${rutaId}")
+                            if (rutaId != null && usuarioId != null) {
+                                val route = Routes.Pausas.createRoute(
+                                    rutaId = rutaId,
+                                    usuarioId = usuarioId,
+                                )
+                                navController.navigate(route)
+                            } else {
+                                println("Error: rutaId o usuarioId nulos")
+                            }
+                        }) {
                             Text("Pausar Embarque")
                         }
                     }

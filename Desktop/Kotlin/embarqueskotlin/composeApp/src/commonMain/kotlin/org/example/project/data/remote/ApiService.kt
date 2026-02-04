@@ -2,6 +2,7 @@ package org.example.project.data.remote
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
@@ -54,11 +55,20 @@ class ApiService(private val client: HttpClient) {
         return respuesta
     }
 
-    suspend fun iniciarRuta(EmbarqueID: Int, UsuarioID: Int?): IniciarRutaResponse {
+    suspend fun iniciarRuta(
+        EmbarqueID: Int,
+        UsuarioID: Int?,
+        tonelaje: Double?,
+        checadorId: Int,
+        estibadorId: Int
+    ): IniciarRutaResponse {
         return client.post("/embarqueskotlin/embarques/iniciar") {
             val payload = IniciarRutaPayload(
                 EmbarqueID = EmbarqueID,
-                UsuarioID = UsuarioID
+                UsuarioID = UsuarioID,
+                Peso = tonelaje,
+                ChecadorID = checadorId,
+                EstibadorID = estibadorId
             )
             contentType(ContentType.Application.Json)
             setBody(payload)
@@ -167,8 +177,25 @@ class ApiService(private val client: HttpClient) {
         request: CrearIncidenciaRequest
     ): CrearIncidenciaResponse {
         return client.post("/embarqueskotlin/incidencias/crear") {
-            contentType(ContentType.Application.Json) // 🔥 OBLIGATORIO
-            setBody(request)
+            setBody(MultiPartFormDataContent(
+                formData {
+                    append("EmbarqueId", request.EmbarqueId.toString())
+                    append("IdTipoIncidencia", request.IdTipoIncidencia.toString())
+                    append("UsuarioRegistroId", request.UsuarioRegistroId.toString())
+                    append("Cantidad", (request.Cantidad ?: 1).toString())
+                    append("Descripcion", request.Descripcion ?: "")
+                    append("Resolucion", request.Resolucion ?: "")
+
+                    // ESTA PARTE ES CRÍTICA:
+                    append("Evidencia", request.Evidencia, Headers.build {
+                        append(HttpHeaders.ContentType, "image/jpeg")
+                        // Multer necesita que el parámetro 'name' sea "Evidencia"
+                        // Ktor lo añade automáticamente si usas la llave en el append,
+                        // pero el filename es OBLIGATORIO para que Multer lo vea como 'file'.
+                        append(HttpHeaders.ContentDisposition, "filename=\"evidencia.jpg\"")
+                    })
+                }
+            ))
         }.body()
     }
 

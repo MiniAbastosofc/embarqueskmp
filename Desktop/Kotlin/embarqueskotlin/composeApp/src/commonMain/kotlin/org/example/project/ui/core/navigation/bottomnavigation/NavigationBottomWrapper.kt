@@ -9,11 +9,15 @@ import androidx.navigation.navArgument
 import org.example.project.ui.core.navigation.Routes
 import org.example.project.ui.home.tabs.admin.AdminScreen
 import org.example.project.ui.home.tabs.admin.AdminUsuarios.AdminCrearUsuario
+import org.example.project.ui.home.tabs.extension.ExtensionScreen
 import org.example.project.ui.home.tabs.historial.HistorialDetalle
 import org.example.project.ui.home.tabs.historial.HistorialScreen
 import org.example.project.ui.home.tabs.incidencias.IncidenciasScreen
+import org.example.project.ui.home.tabs.incidencias.components.ListaIncidencias
 import org.example.project.ui.home.tabs.rutas.RutasScreen
 import org.example.project.ui.home.tabs.login.LoginScreen
+import org.example.project.ui.home.tabs.pausas.PausasScreen
+import org.example.project.ui.home.tabs.productividad.ProductividadScreen
 import org.example.project.ui.home.tabs.rutas.components.CapturaRutas
 import org.example.project.ui.home.tabs.sucursales.SucursalesScreen
 import org.example.project.ui.home.tabs.sucursales.components.CapturaSucursales
@@ -27,6 +31,7 @@ fun NavigationBottomWrapper(navController: NavHostController) {
 //            LoginScreen()
 //            CapturaRutas()
             HistorialScreen(navController = navController)
+//            ExtensionScreen()
 //            IncidenciasScreen()
         }
         composable(route = Routes.Admin.route) { AdminScreen(navController = navController) }
@@ -62,8 +67,12 @@ fun NavigationBottomWrapper(navController: NavHostController) {
             )
         }
         composable(
-            route = Routes.Incidencias.route,
+            // 1. Actualiza la ruta para que acepte el embarqueId como parte del path
+            route = "incidencias/{embarqueId}?imagenUri={imagenUri}",
             arguments = listOf(
+                navArgument("embarqueId") {
+                    type = NavType.StringType
+                },
                 navArgument("imagenUri") {
                     type = NavType.StringType
                     nullable = true
@@ -71,13 +80,28 @@ fun NavigationBottomWrapper(navController: NavHostController) {
                 }
             )
         ) { backStackEntry ->
-            // Obtén el parámetro de la ruta
+            // 2. Extrae AMBOS valores
+            val embarqueId = backStackEntry.arguments?.getString("embarqueId")
             val imagenUri = backStackEntry.arguments?.getString("imagenUri")
 
+            // 3. Pásalos a tu Screen
             IncidenciasScreen(
                 navController = navController,
+                embarqueId = embarqueId, // <-- Asegúrate de agregar este parámetro a tu IncidenciasScreen
                 imagenUri = imagenUri
             )
         }
+        composable(
+            route = Routes.Pausas.route, arguments = listOf(
+                navArgument("rutaId") { type = NavType.StringType },
+                navArgument("usuarioId") { type = NavType.IntType }
+            )) { backStackEntry ->
+            val rutaIdString = backStackEntry.arguments?.getString("rutaId")
+            val rutaId = rutaIdString?.toIntOrNull()
+            val usuarioId = backStackEntry.arguments?.getInt("usuarioId")
+            PausasScreen(navController = navController, rutaId, usuarioId)
+        }
+        composable(route = Routes.Productividad.route) { ProductividadScreen(navController = navController) }
+        composable(route = Routes.ListaIncidencias.route) { ListaIncidencias(navController = navController) }
     }
 }

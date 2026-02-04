@@ -19,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -35,9 +36,33 @@ import org.example.project.ui.home.tabs.incidencias.components.TipoIncidencias
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun IncidenciasScreen(navController: NavHostController, imagenUri: String?) {
+fun IncidenciasScreen(embarqueId: String?, navController: NavHostController, imagenUri: String?) {
     val incidenciasViewModel = koinViewModel<IncidenciasViewModel>()
     val state by incidenciasViewModel.state.collectAsState()
+
+    LaunchedEffect(imagenUri) {
+        println("LOG: Recibí imagenUri de la cámara: $imagenUri")
+        incidenciasViewModel.setEvidenciaUri(imagenUri)
+    }
+    LaunchedEffect(Unit) {
+        println("DEBUG NAVEGACIÓN: El path recibido es -> $imagenUri")
+    }
+    LaunchedEffect(imagenUri) {
+        incidenciasViewModel.setEvidenciaUri(imagenUri)
+    }
+
+    LaunchedEffect(state.operacionExitosa) {
+        if (state.operacionExitosa) {
+            navController.popBackStack()
+        }
+    }
+
+    LaunchedEffect(embarqueId) {
+        if (embarqueId != null) {
+            incidenciasViewModel.setEmbarqueId(embarqueId)
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -80,6 +105,6 @@ fun IncidenciasScreen(navController: NavHostController, imagenUri: String?) {
         AccionTomadaIncidencia()
         Spacer(modifier = Modifier.weight(1f))
         Spacer(modifier = Modifier.height(10.dp))
-        BotonEnviarIncidencias()
+        BotonEnviarIncidencias(imagenUri = imagenUri)
     }
 }

@@ -40,10 +40,19 @@ class RepositoryImpl(
         return api.getRutasPorfecha(fecha).toDomain()
     }
 
-    override suspend fun iniciarRutasRepository(EmbarqueID: Int, UsuarioID: Int?): String {
+    override suspend fun iniciarRutasRepository(
+        EmbarqueID: Int,
+        UsuarioID: Int?,
+        tonelaje: Double?,
+        checadorId: Int,
+        estibadorId: Int
+    ): String {
         val response: IniciarRutaResponse = api.iniciarRuta(
             EmbarqueID = EmbarqueID,
-            UsuarioID = UsuarioID
+            UsuarioID = UsuarioID,
+            tonelaje = tonelaje,
+            checadorId = checadorId,
+            estibadorId = estibadorId
         )
         val mensajeExito: String = response.message
         return mensajeExito

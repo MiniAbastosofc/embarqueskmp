@@ -8,7 +8,7 @@ data class CrearIncidenciaRequest(
     val IdTipoIncidencia: Int,
     val Cantidad: Int,
     val Descripcion: String,
-    val Evidencia: String,
+    val Evidencia: ByteArray,
     val UsuarioRegistroId: Int?,
     val Resolucion: String
 )
