@@ -6,6 +6,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import org.example.project.features.devolucion.ui.components.DevolucionDetalle
+import org.example.project.features.devolucion.ui.components.DevolucionRegresoDetalle
+
+import org.example.project.features.devolucion.ui.screens.DevolucionRegresoScreen
+import org.example.project.features.devolucion.ui.screens.DevolucionScreen
 import org.example.project.ui.core.navigation.Routes
 import org.example.project.ui.home.tabs.admin.AdminScreen
 import org.example.project.ui.home.tabs.admin.AdminUsuarios.AdminCrearUsuario
@@ -18,6 +23,7 @@ import org.example.project.ui.home.tabs.rutas.RutasScreen
 import org.example.project.ui.home.tabs.login.LoginScreen
 import org.example.project.ui.home.tabs.pausas.PausasScreen
 import org.example.project.ui.home.tabs.productividad.ProductividadScreen
+import org.example.project.ui.home.tabs.productividad.components.CajasProductividadSemanalScreen
 import org.example.project.ui.home.tabs.rutas.components.CapturaRutas
 import org.example.project.ui.home.tabs.sucursales.SucursalesScreen
 import org.example.project.ui.home.tabs.sucursales.components.CapturaSucursales
@@ -103,5 +109,11 @@ fun NavigationBottomWrapper(navController: NavHostController) {
         }
         composable(route = Routes.Productividad.route) { ProductividadScreen(navController = navController) }
         composable(route = Routes.ListaIncidencias.route) { ListaIncidencias(navController = navController) }
+        composable(route = Routes.Devolucion.route) { DevolucionScreen(navController = navController) }
+        composable(route = Routes.DevolucionDetalle.route) { DevolucionDetalle() }
+        composable(route = Routes.DevolucionRegresado.route) { DevolucionRegresoScreen(navController = navController) }
+        composable(route = Routes.DevolucionRegresadoDetalle.route) { DevolucionRegresoDetalle() }
+        composable(route = Routes.ProductividadCajas.route){ CajasProductividadSemanalScreen(   ) }
+
     }
 }

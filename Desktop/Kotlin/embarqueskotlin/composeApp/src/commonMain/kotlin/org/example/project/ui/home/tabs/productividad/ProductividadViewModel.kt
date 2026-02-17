@@ -7,14 +7,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.example.project.domain.useCases.GetProductividadUseCase
+import org.example.project.domain.useCases.GetRankingCajasUseCase
 
 class ProductividadViewModel(
-    private val getProductividadUseCase: GetProductividadUseCase
+    private val getProductividadUseCase: GetProductividadUseCase,
+    private val getRankingCajasUseCase: GetRankingCajasUseCase
 ) : ViewModel() {
-
     private val _state = MutableStateFlow(ProductividadState())
     val state = _state.asStateFlow()
-
     fun cargarReporte(inicio: String, fin: String) {
         println("DEBUG: Cargando reporte de $inicio a $fin")
         viewModelScope.launch {
@@ -61,4 +61,34 @@ class ProductividadViewModel(
             cargarReporte(s.fechaInicio, s.fechaFin)
         }
     }
+
+    fun cargarReporteCajas(inicio: String, fin: String) {
+        println("DEBUG: Cargando ranking de cajas de $inicio a $fin")
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = null) }
+
+            val resultado = getRankingCajasUseCase(inicio, fin)
+
+            resultado.onSuccess { lista ->
+                println("DEBUG: Registros de cajas recibidos: ${lista.size}")
+                _state.update {
+                    it.copy(
+                        // Filtramos por rol usando el nuevo modelo de cajas
+                        estibadoresCajas = lista.filter { item -> item.tipoPersonal == "ESTIBADOR" },
+                        checadoresCajas = lista.filter { item -> item.tipoPersonal == "CHECADOR" },
+                        isLoading = false
+                    )
+                }
+            }.onFailure { error ->
+                println("DEBUG: Error en API Cajas: ${error.message}")
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = error.message ?: "Error al obtener ranking de cajas"
+                    )
+                }
+            }
+        }
+    }
+
 }

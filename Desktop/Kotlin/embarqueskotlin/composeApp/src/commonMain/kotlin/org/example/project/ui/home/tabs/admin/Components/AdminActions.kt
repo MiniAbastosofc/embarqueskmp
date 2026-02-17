@@ -43,11 +43,19 @@ fun getAdminActions(navController: NavHostController): List<AdminAction> {
 //        },
         AdminAction(
             title = "Productividad",
-            description = "Modulo para reporte de productividad",
+            description = "Modulo para reporte de productividad ton/hra",
             icon = Icons.Default.TrendingUp,
             color = Color(0xFFF44336)
         ) {
             navController.navigate(Routes.Productividad.route)
+        },
+        AdminAction(
+            title = "Productividad",
+            description = "Modulo para reporte de productividad cjs/hra",
+            icon = Icons.Default.TrendingUp,
+            color = Color(0xFFF44336)
+        ) {
+            navController.navigate(Routes.ProductividadCajas.route)
         },
         AdminAction(
             title = "Logs",
@@ -65,5 +73,13 @@ fun getAdminActions(navController: NavHostController): List<AdminAction> {
         ) {
             navController.navigate(Routes.ListaIncidencias.route)
         },
+//        AdminAction(
+//            title = "Devoluciones",
+//            description = "Modulo para visualizacion de productos devueltos",
+//            icon = Icons.Default.Inventory2,
+//            color = Color(0xFF2784F5)
+//        ) {
+//            navController.navigate(Routes.DevolucionRegresado.route)
+//        },
     )
 }

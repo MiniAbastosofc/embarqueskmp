@@ -50,7 +50,6 @@ fun IncidenciaItem(incidencia: IncidenciaPorFechaResponse) {
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
-
             // Badge de Estatus
             val statusColor =
                 if (incidencia.estatus == "A") Color(0xFFE53935) else Color(0xFF43A047)
@@ -68,15 +67,12 @@ fun IncidenciaItem(incidencia: IncidenciaPorFechaResponse) {
                 )
             }
         }
-
         Spacer(Modifier.height(8.dp))
-
         Text(
             text = incidencia.descripcionRuta,
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
             color = MaterialTheme.colorScheme.onSurface
         )
-
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 Icons.Default.LocalShipping,
@@ -91,9 +87,7 @@ fun IncidenciaItem(incidencia: IncidenciaPorFechaResponse) {
                 color = MaterialTheme.colorScheme.outline
             )
         }
-
         Spacer(Modifier.height(8.dp))
-
         Text(
             text = incidencia.descripcion,
             style = MaterialTheme.typography.bodyMedium,

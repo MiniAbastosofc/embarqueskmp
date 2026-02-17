@@ -91,14 +91,12 @@ fun CapturaRutas(
     val iniciarRutaState by rutasViewModel.iniciarRutaState.collectAsState()
     val user = UserDataManager.getCurrentUser()
     val usuarioId = user?.UsuarioId
-
     LaunchedEffect(Unit) {
         if (statusId != null && rutasViewModel.state.value.currentRutaStatus == null) {
             rutasViewModel.setCurrentRutaStatus(statusId)
         }
         println("Aqui vemos la ruta - ${rutaId}")
     }
-
     LaunchedEffect(state.uploadFotoState) {
         when (val uploadState = state.uploadFotoState) {
             is UploadFotoState.Success -> {
@@ -110,7 +108,6 @@ fun CapturaRutas(
                 delay(2000) // 2 segundos
                 rutasViewModel.resetUploadFotoState()
             }
-
             is UploadFotoState.Error -> {
                 println("❌ ${uploadState.error}")
                 // En error NO se reinician los campos, el usuario puede intentar de nuevo
@@ -121,8 +118,6 @@ fun CapturaRutas(
             else -> {}
         }
     }
-
-
     LaunchedEffect(iniciarRutaState) {
         if (iniciarRutaState is RutaUiState.Success) {
             // Muestra un Toast o Snackbar con el mensaje (depende de tu implementación)
@@ -136,7 +131,6 @@ fun CapturaRutas(
             rutasViewModel.resetIniciarRutaState()
         }
     }
-
     LaunchedEffect(state.embarqueFinalizado, state.finalizarEmbarqueError) {
         if (state.embarqueFinalizado) {
             println("=== DATOS DEL EMBARQUE FINALIZADO ===")
@@ -159,7 +153,6 @@ fun CapturaRutas(
             rutasViewModel.clearFinalizarError()
         }
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -196,6 +189,7 @@ fun CapturaRutas(
             1 -> {   // SIN INICIAR
                 // Campos de estado
                 var tonelaje by remember { mutableStateOf("") }
+                var cajas by remember { mutableStateOf("") }
                 var checadorSeleccionado by remember { mutableStateOf<PersonalBodegaModel?>(null) }
                 var estibadorSeleccionado by remember { mutableStateOf<PersonalBodegaModel?>(null) }
                 var expandedChecador by remember { mutableStateOf(false) }
@@ -219,7 +213,6 @@ fun CapturaRutas(
                             .fillMaxWidth()
                             .padding(bottom = 16.dp)
                     )
-
                     // Selector de Checador
                     ExposedDropdownMenuBox(
                         expanded = expandedChecador,
@@ -246,7 +239,6 @@ fun CapturaRutas(
                             //    unfocusedBorderColor = Color.Gray
                             //)
                         )
-
                         ExposedDropdownMenu(
                             expanded = expandedChecador,
                             onDismissRequest = { expandedChecador = false }
@@ -264,9 +256,7 @@ fun CapturaRutas(
                                 )
                             }
                         }
-                    }
-
-                    // Selector de Estibador
+                    } // Selector de Estibador
                     ExposedDropdownMenuBox(
                         expanded = expandedEstibador,
                         onExpandedChange = { expandedEstibador = !expandedEstibador }
@@ -335,12 +325,36 @@ fun CapturaRutas(
                         //    unfocusedBorderColor = Color.Gray
                         //)
                     )
-
+                    OutlinedTextField(
+                        value = cajas,
+                        onValueChange = { nuevoValor ->
+                            // Filtrar solo números
+                            if (nuevoValor.all { it.isDigit() }) {
+                                cajas = nuevoValor
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        label = { Text("Cajas/Bultos *") },
+                        placeholder = { Text("Ejemplo: 12 o 5") },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        //colors = TextFieldDefaults.outlinedTextFieldColors(
+                        //    focusedBorderColor = Color(0xFF64B5F6),
+                        //    unfocusedBorderColor = Color.Gray
+                        //)
+                    )
                     Button(
                         onClick = {
                             val embarqueID = rutaId?.toIntOrNull() ?: 0
                             val usuarioID = usuarioId
                             val tonelajeValor = tonelaje.toDoubleOrNull() ?: 0.0
+                            val cajasValor = cajas.toIntOrNull() ?: 0
                             val checadorID = checadorSeleccionado?.id ?: 0
                             val estibadorID = estibadorSeleccionado?.id ?: 0
 
@@ -348,7 +362,7 @@ fun CapturaRutas(
                                 // Aquí pasarías también los IDs del checador y estibador
                                 rutasViewModel.iniciarRuta(
                                     embarqueID, usuarioID, tonelajeValor, checadorId = checadorID,
-                                    estibadorId = estibadorID
+                                    estibadorId = estibadorID, cajas = cajasValor
                                 )
                             }
                         },
@@ -360,7 +374,8 @@ fun CapturaRutas(
                             disabledContainerColor = Color(0xFFBDBDBD)
                         ),
                         shape = RoundedCornerShape(12.dp),
-                        enabled = tonelaje.isNotEmpty() &&
+                        enabled = (tonelaje.toDoubleOrNull() ?: 0.0) > 0.0 &&
+                                (cajas.toIntOrNull() ?: 0) > 0 &&
                                 checadorSeleccionado != null &&
                                 estibadorSeleccionado != null
                     ) {
@@ -376,14 +391,15 @@ fun CapturaRutas(
                             fontSize = 16.sp
                         )
                     }
-
+                    val tonelajeValido = (tonelaje.toDoubleOrNull() ?: 0.0) > 0.0
+                    val cajasValidas = (cajas.toIntOrNull() ?: 0) > 0
                     // Mensaje de validación
-                    if (tonelaje.isEmpty() || checadorSeleccionado == null || estibadorSeleccionado == null) {
+                    if (!tonelajeValido || !cajasValidas || checadorSeleccionado == null || estibadorSeleccionado == null) {
                         val mensajes = mutableListOf<String>()
                         if (tonelaje.isEmpty()) mensajes.add("tonelaje")
+                        if (cajas.isEmpty()) mensajes.add("cajas/bultos")
                         if (checadorSeleccionado == null) mensajes.add("checador")
                         if (estibadorSeleccionado == null) mensajes.add("estibador")
-
                         Text(
                             text = "Debe completar: ${mensajes.joinToString(", ")}",
                             style = MaterialTheme.typography.bodySmall,
@@ -394,7 +410,6 @@ fun CapturaRutas(
                         )
                     }
                 }
-
                 return
             }
 

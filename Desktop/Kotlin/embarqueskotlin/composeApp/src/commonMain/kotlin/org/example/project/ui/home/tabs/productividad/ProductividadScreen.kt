@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import org.example.project.ui.home.tabs.productividad.components.CajasProductividadSemanalScreen
 import org.example.project.ui.home.tabs.productividad.components.ProductividadItem
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -42,7 +43,6 @@ fun ProductividadScreen(navController: NavHostController) {
     var tabSeleccionada by remember { mutableStateOf(0) }
     var showInicioPicker by remember { mutableStateOf(false) }
     var showFinPicker by remember { mutableStateOf(false) }
-
     // --- LÓGICA DE CARGA AUTOMÁTICA ---
     // Cuando ambas fechas cambian y no están vacías, se dispara la carga
     LaunchedEffect(state.fechaInicio, state.fechaFin) {
@@ -50,29 +50,24 @@ fun ProductividadScreen(navController: NavHostController) {
             viewModel.cargarReporte(state.fechaInicio, state.fechaFin)
         }
     }
-
     // --- COMPONENTES DEL CALENDARIO (Invisibles hasta que show sea true) ---
     PlatformDatePicker(
         show = showInicioPicker,
         onDismiss = { showInicioPicker = false },
         onDateSelected = { viewModel.onFechaInicioChanged(it) }
     )
-
     PlatformDatePicker(
         show = showFinPicker,
         onDismiss = { showFinPicker = false },
         onDateSelected = { viewModel.onFechaFinChanged(it) }
     )
-
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
             "Productividad Semanal",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
-
         Spacer(Modifier.height(16.dp))
-
         // --- SELECTORES DE FECHA ---
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -97,19 +92,17 @@ fun ProductividadScreen(navController: NavHostController) {
             }
         }
         Spacer(Modifier.height(8.dp))
-        Button(
-            onClick = {
-                if (state.fechaInicio.isNotEmpty() && state.fechaFin.isNotEmpty()) {
-                    viewModel.cargarReporte(state.fechaInicio, state.fechaFin)
-                }
-            },
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-        ) {
-            Text("Consultar Productividad")
-        }
-
+//        Button(
+//            onClick = {
+//                if (state.fechaInicio.isNotEmpty() && state.fechaFin.isNotEmpty()) {
+//                    viewModel.cargarReporte(state.fechaInicio, state.fechaFin)
+//                }
+//            },
+//            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+//        ) {
+//            Text("Consultar Productividad")
+//        }
         Spacer(Modifier.height(16.dp))
-
         // --- TABS ---
         TabRow(selectedTabIndex = tabSeleccionada) {
             Tab(
@@ -123,7 +116,6 @@ fun ProductividadScreen(navController: NavHostController) {
                 text = { Text("Checadores (${state.checadores.size})") }
             )
         }
-
         // --- LISTA DE RESULTADOS ---
         if (state.isLoading) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

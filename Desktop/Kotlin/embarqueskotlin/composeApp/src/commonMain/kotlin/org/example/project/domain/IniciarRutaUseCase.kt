@@ -7,7 +7,8 @@ class IniciarRutaUseCase(private val repository: Repository) {
         usuarioId: Int?,
         tonelaje: Double,
         checadorId: Int,
-        estibadorId: Int
+        estibadorId: Int,
+        cajas: Int
     ): String {
         // La lógica de negocio está aquí (ej: validaciones antes de llamar al repo)
         if (usuarioId != null) {
@@ -15,6 +16,13 @@ class IniciarRutaUseCase(private val repository: Repository) {
                 throw IllegalArgumentException("IDs de embarque o usuario inválidos.")
             }
         }
-        return repository.iniciarRutasRepository(embarqueId, usuarioId, tonelaje, checadorId, estibadorId)
+        return repository.iniciarRutasRepository(
+            embarqueId,
+            usuarioId,
+            tonelaje,
+            checadorId,
+            estibadorId,
+            cajas
+        )
     }
 }

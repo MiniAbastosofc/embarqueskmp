@@ -25,7 +25,8 @@ fun HomeScreen() {
     val items = listOf(
         Rutas(),
 //        Sucursales(),
-        Historial(), Admin()
+        Historial(), Admin(),
+        //Devolucion()
     )
     val navController = rememberNavController()
     val user = UserDataManager.getCurrentUser()
@@ -72,6 +73,7 @@ private fun getAccessibleBottomBarItems(userRole: Int): List<BottomBarItem> {
         // Rutas - Disponible para rol 1 y 2
         if (userRole == 1 || userRole == 2) {
             add(Rutas())
+            //add(Devolucion())
         }
 
         // Historial - Solo rol 1

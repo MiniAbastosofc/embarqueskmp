@@ -1,5 +1,6 @@
 package org.example.project.di
 
+import org.example.project.features.devolucion.ui.screens.DevolucionViewModel
 import org.example.project.ui.core.SessionViewModel
 import org.example.project.ui.home.tabs.admin.AdminViewModel
 import org.example.project.ui.home.tabs.extension.ExtensionViewModel
@@ -26,5 +27,6 @@ val uiModule = module {
     viewModelOf(::ExtensionViewModel)
     viewModelOf(::PausasViewModel)
     viewModelOf(::ProductividadViewModel)
+    viewModelOf(::DevolucionViewModel)
 
 }

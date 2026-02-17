@@ -60,7 +60,8 @@ class ApiService(private val client: HttpClient) {
         UsuarioID: Int?,
         tonelaje: Double?,
         checadorId: Int,
-        estibadorId: Int
+        estibadorId: Int,
+        cajas : Int
     ): IniciarRutaResponse {
         return client.post("/embarqueskotlin/embarques/iniciar") {
             val payload = IniciarRutaPayload(
@@ -68,7 +69,8 @@ class ApiService(private val client: HttpClient) {
                 UsuarioID = UsuarioID,
                 Peso = tonelaje,
                 ChecadorID = checadorId,
-                EstibadorID = estibadorId
+                EstibadorID = estibadorId,
+                Cajas = cajas
             )
             contentType(ContentType.Application.Json)
             setBody(payload)

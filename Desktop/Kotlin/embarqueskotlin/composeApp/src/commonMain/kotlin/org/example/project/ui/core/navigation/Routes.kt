@@ -35,7 +35,15 @@ sealed class Routes(val route: String) {
             return "pausas/$rutaId/$usuarioId"
         }
     }
-
-
     data object Productividad : Routes("produtividad")
+    data object Devolucion : Routes("devolucion")
+    data object DevolucionDetalle : Routes("devolucion/detalle/{id}") {
+        fun createRoute(id: String): String {
+            return "devolucion/detalle/$id"
+        }
+    }
+    data object ProductividadCajas : Routes("produtividad/cajas")
+
+    data object DevolucionRegresado : Routes("devolucion/regresado")
+    data object DevolucionRegresadoDetalle : Routes("devolucion/regresado/detalle")
 }

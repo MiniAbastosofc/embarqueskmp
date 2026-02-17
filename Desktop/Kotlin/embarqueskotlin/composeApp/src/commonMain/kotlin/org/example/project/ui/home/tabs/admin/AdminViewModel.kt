@@ -102,6 +102,9 @@ class AdminViewModel(
                     return@launch
                 }
 
+                generarUsuarioId()
+                val idConIniciales = _state.value.crearUsuarioId
+
                 // Mapear rol a ID
                 val rolID = when (_state.value.crearUsuarioRol) {
                     "Administrador" -> 1
@@ -115,11 +118,13 @@ class AdminViewModel(
                     _state.value.crearUsuarioApellido
                 )
 
+                println("DEBUG_ENVIO: Se enviará como usuario -> $idConIniciales")
+
                 val request = CrearUsuarioRequest(
                     nombre = _state.value.crearUsuarioNombre.trim(),
                     apellido = _state.value.crearUsuarioApellido.trim(),
                     numeroEmpleado = _state.value.crearUsuarioNumeroEmpleado.trim(),
-                    usuario = usuario,
+                    usuario = idConIniciales,
                     password = _state.value.crearUsuarioContrasena,
                     rolID = rolID,
                     usuarioCreacion = "admin" // Cambiar por usuario actual logueado
@@ -133,8 +138,9 @@ class AdminViewModel(
                         _state.update {
                             it.copy(
                                 crearUsuarioLoading = false,
-                                crearUsuarioId = userModel.usuarioId?.toString()
-                                    ?: "Usuario creado exitosamente",
+//                                crearUsuarioId = userModel.usuarioId?.toString()
+//                                    ?: "Usuario creado exitosamente",
+                                crearUsuarioId = idConIniciales,
                                 crearUsuarioError = null
                             )
                         }

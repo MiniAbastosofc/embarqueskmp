@@ -20,7 +20,8 @@ interface Repository {
         UsuarioID: Int?,
         tonelaje: Double?,
         checadorId: Int,
-        estibadorId: Int
+        estibadorId: Int,
+        cajas: Int
     ): String
 
     suspend fun getShipmentDetailsByDateRepository(date: String): List<RutaDetallesModel>

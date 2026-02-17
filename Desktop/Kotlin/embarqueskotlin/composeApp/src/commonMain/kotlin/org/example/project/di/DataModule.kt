@@ -46,6 +46,7 @@ import org.example.project.domain.useCases.BuscarEmbarqueUseCase
 import org.example.project.domain.useCases.FinalizarPausaUseCase
 import org.example.project.domain.useCases.GetIncidenciasUseCase
 import org.example.project.domain.useCases.GetProductividadUseCase
+import org.example.project.domain.useCases.GetRankingCajasUseCase
 import org.example.project.domain.useCases.IniciarPausaUseCase
 import org.example.project.domain.useCases.ObtenerPersonalBodegaUseCase
 import org.example.project.domain.useCases.VerificarPausaActivaUseCase
@@ -73,7 +74,6 @@ val dataModule = module {
 //                    port = 3099
                     host = "172.16.3.213"
                     port = 3011
-
                 }
             }
             install(HttpTimeout) {
@@ -143,5 +143,6 @@ val dataModule = module {
     factoryOf(::FinalizarPausaUseCase)
     factoryOf(::GetProductividadUseCase)
     factoryOf(::GetIncidenciasUseCase)
+    factoryOf(::GetRankingCajasUseCase)
 
 }

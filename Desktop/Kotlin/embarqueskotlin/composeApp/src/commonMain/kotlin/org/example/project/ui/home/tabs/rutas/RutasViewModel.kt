@@ -163,14 +163,14 @@ class RutasViewModel(
     }
 
     fun iniciarRuta(
-        embarqueId: Int, usuarioId: Int?, tonelaje: Double, checadorId: Int, estibadorId: Int
+        embarqueId: Int, usuarioId: Int?, tonelaje: Double, checadorId: Int, estibadorId: Int, cajas: Int
     ) {
         viewModelScope.launch {
             _iniciarRutaState.value = RutaUiState.Loading
             try {
                 // Pasa el tonelaje al UseCase
                 val message =
-                    iniciarRutaUseCase(embarqueId, usuarioId, tonelaje, checadorId, estibadorId)
+                    iniciarRutaUseCase(embarqueId, usuarioId, tonelaje, checadorId, estibadorId, cajas)
                 _iniciarRutaState.value = RutaUiState.Success(message)
                 _state.update { it.copy(currentRutaStatus = 2) }
                 loadEmbarques(_state.value.fechaSeleccionada)

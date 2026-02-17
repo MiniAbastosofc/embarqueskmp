@@ -63,7 +63,8 @@ fun DetalleIncidenciaSheet(incidencia: IncidenciaPorFechaResponse) {
         Spacer(Modifier.height(16.dp))
 
         // Imagen con Shimmer/Placeholder conceptual
-        val baseUrl = "http://172.16.3.213:3011"
+//        val baseUrl = "http://172.16.3.213:3011"
+        val baseUrl = "http://172.16.4.187:3099"
         val imageUrl = if (incidencia.evidenciaUrl?.startsWith("http") == true)
             incidencia.evidenciaUrl else "$baseUrl${incidencia.evidenciaUrl}"
 
@@ -80,9 +81,7 @@ fun DetalleIncidenciaSheet(incidencia: IncidenciaPorFechaResponse) {
                     .height(250.dp)
             )
         }
-
         Spacer(Modifier.height(20.dp))
-
         // Bloque de Información
         Card(
             colors = CardDefaults.cardColors(
@@ -110,9 +109,7 @@ fun DetalleIncidenciaSheet(incidencia: IncidenciaPorFechaResponse) {
                 )
             }
         }
-
         Spacer(Modifier.height(16.dp))
-
         // Descripción con estilo de "nota"
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
             Text(
@@ -127,7 +124,6 @@ fun DetalleIncidenciaSheet(incidencia: IncidenciaPorFechaResponse) {
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
-
         if (incidencia.comentarioResolucion != null) {
             Spacer(Modifier.height(16.dp))
             Card(

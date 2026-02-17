@@ -1,11 +1,13 @@
 package org.example.project.ui.core.navigation.bottomnavigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.AddRoad
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.filled.Storefront
+import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import org.example.project.ui.core.navigation.Routes
@@ -46,4 +48,12 @@ sealed class BottomBarItem {
             Icon(imageVector = Icons.Default.ManageAccounts, "")
         }
     ) : BottomBarItem()
+
+//    data class Devolucion(
+//        override val route: String = Routes.Devolucion.route,
+//        override val title: String = "Devolucion",
+//        override val icon: @Composable () -> Unit = {
+//            Icon(imageVector = Icons.AutoMirrored.Filled.Undo, "")
+//        }
+//    ) : BottomBarItem()
 }

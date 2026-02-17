@@ -14,5 +14,6 @@ data class IniciarRutaPayload(
     val UsuarioID: Int?,
     val Peso: Double?,      // Agregado (coincide con @Peso en SP)
     val ChecadorID: Int,    // Agregado
-    val EstibadorID: Int
+    val EstibadorID: Int,
+    val Cajas: Int
 )

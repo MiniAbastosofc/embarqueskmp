@@ -45,14 +45,16 @@ class RepositoryImpl(
         UsuarioID: Int?,
         tonelaje: Double?,
         checadorId: Int,
-        estibadorId: Int
+        estibadorId: Int,
+        cajas: Int
     ): String {
         val response: IniciarRutaResponse = api.iniciarRuta(
             EmbarqueID = EmbarqueID,
             UsuarioID = UsuarioID,
             tonelaje = tonelaje,
             checadorId = checadorId,
-            estibadorId = estibadorId
+            estibadorId = estibadorId,
+            cajas = cajas
         )
         val mensajeExito: String = response.message
         return mensajeExito
