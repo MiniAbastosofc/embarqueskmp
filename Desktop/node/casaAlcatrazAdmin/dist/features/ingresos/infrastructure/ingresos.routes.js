@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ingresosRouter = void 0;
+const express_1 = require("express");
+const ingresos_repository_1 = require("./database/ingresos.repository");
+const crearIngreso_usecase_1 = require("../application/crearIngreso.usecase");
+const ingresos_controller_1 = require("./ingresos.controller");
+const detallePagosXCliente_usecase_1 = require("../application/detallePagosXCliente.usecase");
+const ingresosRouter = (0, express_1.Router)();
+exports.ingresosRouter = ingresosRouter;
+const ingresosRepository = new ingresos_repository_1.IngresosRepository();
+const crearIngresoUseCase = new crearIngreso_usecase_1.CrearIngresoUsecase(ingresosRepository);
+const buscarPagosPorReservaUseCase = new detallePagosXCliente_usecase_1.BuscarPagosPorReservaUseCase(ingresosRepository);
+const ingresosController = new ingresos_controller_1.IngresosController(crearIngresoUseCase, buscarPagosPorReservaUseCase);
+ingresosRouter.post("/crear-ingreso", ingresosController.insertarIngreso.bind(ingresosController));
+ingresosRouter.get("/:id", ingresosController.obtenerPagosPorReserva.bind(ingresosController));

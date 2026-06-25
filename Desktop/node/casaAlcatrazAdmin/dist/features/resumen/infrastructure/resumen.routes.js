@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.resumenRouter = void 0;
+const express_1 = require("express");
+const resumen_repository_1 = require("./database/resumen.repository");
+const resumen_usecase_1 = require("../application/resumen.usecase");
+const resumen_controller_1 = require("./resumen.controller");
+const obtenerdashboardcompleto_usecase_1 = require("../application/obtenerdashboardcompleto.usecase");
+const resumenRouter = (0, express_1.Router)();
+exports.resumenRouter = resumenRouter;
+const resumenRepository = new resumen_repository_1.ResumenRepository();
+const resumenUseCase = new resumen_usecase_1.ResumenUseCase(resumenRepository);
+const obtenerdashboardcompletoUsecase = new obtenerdashboardcompleto_usecase_1.ObtenerDashboardCompletoUseCase(resumenRepository);
+const resumenController = new resumen_controller_1.ResumenController(resumenUseCase, obtenerdashboardcompletoUsecase);
+resumenRouter.get("/info", resumenController.obtenerResumen.bind(resumenController));
+resumenRouter.get("/dashboard", resumenController.obtenerResumenCompleto.bind(resumenController));
